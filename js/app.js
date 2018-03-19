@@ -36,3 +36,61 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+
+let openedCardsList = [];
+
+function matchCardsToList(){
+    if(openedCardsList.length === 2 ){
+        let el1Classes =  openedCardsList[0].firstElementChild.classList;
+        let el2Classes =  openedCardsList[1].firstElementChild.classList;
+       return JSON.stringify(el1Classes) === JSON.stringify(el2Classes);
+    } else {
+        return false;
+    }
+};
+
+function lockCardPosition(elements){
+    for(let i=0; i<elements.length; i++){
+        elements[i].classList.add("open");
+    }
+};
+
+function removeCardsFromList(){
+    for(let i=0; i<openedCardsList.length;i++){
+        openedCardsList[i].classList.remove("show");
+    }
+    openedCardsList = [];
+};
+
+function addToOpenCards(elm){
+    openedCardsList.push(elm);
+    if(openedCardsList.length === 2){
+        if(matchCardsToList()){
+            lockCardPosition(openedCardsList);
+            openedCardsList = [];
+        } else {
+            removeCardsFromList();
+        }
+    }
+};
+
+function displayCardSymbol(element){
+    element.classList.add("show");
+    setTimeout(function(){
+        addToOpenCards(element);
+    },1000);
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.card')
+
+    for(let i=0; i<cards.length; i++){
+        cards[i].addEventListener('click', function (evt) {
+            if (evt.target.nodeName.toLowerCase() === 'li') {
+                displayCardSymbol(evt.target);
+            } else if(evt.target.nodeName.toLowerCase() === 'i'){
+                displayCardSymbol(evt.target.parentElement);
+            }
+        });
+    };
+});
