@@ -36,7 +36,6 @@ h1 {
 /*
  * Styles for the deck of cards
  */
-
 .deck {
     width: 660px;
     min-height: 680px;
@@ -66,9 +65,20 @@ h1 {
 }
 
 .deck .card.open {
-    transform: rotateY(0);
+    transform: rotateY(3.142rad);
     background: #02b3e4;
     cursor: default;
+}
+
+.open {
+    overflow: hidden;
+    transition-duration: 0.8s;
+    transition-property: transform;
+}
+
+.open:hover {
+    transform: rotateY(360deg);
+    -webkit-transform: rotateY(360deg);
 }
 
 .deck .card.show {
@@ -81,10 +91,15 @@ h1 {
     font-size: 33px;
 }
 
+.deck .card.notmatch {
+    cursor: default;
+    background: #fbcc77;
+    font-size: 33px;
+}
+
 /*
  * Styles for the Score Panel
  */
-
 .score-panel {
     text-align: left;
     width: 345px;
@@ -107,3 +122,55 @@ h1 {
     float: right;
     cursor: pointer;
 }
+
+/*
+* Styles for Wining Message
+*/
+.message-box {
+    width: 660px;
+    text-align: center;
+    margin-top: 10%;
+    min-height: 200px;
+    background: linear-gradient(160deg, #aa7ecd 100%, #02ccba 0%);
+    padding: 32px;
+    border-radius: 10px;
+    box-shadow: 12px 15px 20px 0 rgba(46, 61, 73, 0.5);
+}
+
+.play-btn {
+    background-color: #008cba;
+    border-radius: 4px;
+    box-shadow: 5px 5px #f0f0f0;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+
+@-webkit-keyframes spaceboots {
+    0% { -webkit-transform: translate(2px, 1px) rotate(0deg); }
+    10% { -webkit-transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { -webkit-transform: translate(-3px, 0px) rotate(1deg); }
+    30% { -webkit-transform: translate(0px, 2px) rotate(0deg); }
+    40% { -webkit-transform: translate(1px, -1px) rotate(1deg); }
+    50% { -webkit-transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { -webkit-transform: translate(-3px, 1px) rotate(0deg); }
+    70% { -webkit-transform: translate(2px, 1px) rotate(-1deg); }
+    80% { -webkit-transform: translate(-1px, -1px) rotate(1deg); }
+    90% { -webkit-transform: translate(2px, 2px) rotate(0deg); }
+    100% { -webkit-transform: translate(1px, -2px) rotate(-1deg); }
+}
+.shake {
+    -webkit-animation-name: spaceboots;
+    -webkit-animation-duration: 0.8s;
+    -webkit-transform-origin:50% 50%;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+}
+
