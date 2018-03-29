@@ -41,6 +41,7 @@ const cards = document.querySelectorAll('.card');
 const moves =  document.querySelector('.moves');
 const gameContainer = document.querySelector('#gameContainer');
 const cardContainer = document.querySelector('#cardContainer');
+const timer =  document.getElementById("timer")
 const stars = document.querySelector('.stars');
 const totalMatches = 8;
 
@@ -64,7 +65,9 @@ function shuffleCards(){
     movesCount = 0;
     matchesCount = 0;
     starsCount = 3;
+    timerCount = 0;
     moves.innerHTML = movesCount;
+    timer.innerHTML = "00:00";
     for(let i=0; i<stars.children.length ; i++){
         stars.children[i].classList = "fa fa-star";
     }
@@ -214,6 +217,7 @@ function startNewGame(){
     shuffleCards();
     gamesHasStarted = false;
     timerCount = 0;
+    timer.innerHTML = "00:00";
     if(document.getElementById("message-container")){
         document.getElementById("message-container").remove();
         gameContainer.style.display = "flex";
@@ -226,7 +230,7 @@ function startNewGame(){
 * @description draws the cards dynamically in the page
 */
 function drawCards(){
-  cardContainer.innerHTML="";
+    cardContainer.innerHTML="";
     for(let i=0; i<16 ; i++){
         let cardElement = document.createElement('li');
         cardElement.innerHTML = '<i class="fa '+cardIcons[i]+'"></i>';
@@ -242,7 +246,7 @@ function drawCards(){
 function startTimer(){
   setInterval(function(){
     timerCount +=1;
-    document.getElementById("timer").innerHTML = toHHMMSS(timerCount);
+    timer.innerHTML = toHHMMSS(timerCount);
   }, 1000);
 }
 
@@ -265,3 +269,6 @@ document.addEventListener('DOMContentLoaded', function () {
     shuffleCards();
     drawCards();
 });
+
+
+
