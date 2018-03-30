@@ -53,10 +53,14 @@ let matchesCount = 0;
 let starsCount = 3;
 let gamesHasStarted = false;
 let timerCount = 0;
+let timerIntervalId = null;
+let unMatchedTimeOut = null;
+let matchedTimeOut = null;
+let matchChecking = false;
 
 /**
-* @description shuffles and draws the cards
-*/
+ * @description shuffles and draws the cards
+ */
 function shuffleCards(){
     cardIcons = shuffle(cardIcons);
     cardContainer.innerHTML='';
@@ -65,25 +69,24 @@ function shuffleCards(){
     movesCount = 0;
     matchesCount = 0;
     starsCount = 3;
-    timerCount = 0;
     moves.innerHTML = movesCount;
-    timer.innerHTML = "00:00";
+    resetTimer();
     for(let i=0; i<stars.children.length ; i++){
         stars.children[i].classList = "fa fa-star";
     }
 }
 
 /**
-* @description displays the card symbol
-*/
+ * @description displays the card symbol
+ */
 function displayCardSymbol(elm){
     elm.classList.add("show");
     elm.classList.add("open");
 }
 
 /**
-* @description checks if the two open cards are a match
-*/
+ * @description checks if the two open cards are a match
+ */
 function matchCardsToList(){
     if(openedCardsList.length === 2 ){
         let el1Classes =  openedCardsList[0].firstElementChild.classList;
@@ -95,35 +98,53 @@ function matchCardsToList(){
 }
 
 /**
-* @description adds card in the open card list
-*/
+ * @description adds card in the open card list
+ */
 function addToOpenCards(elm){
     openedCardsList.push(elm);
 }
 
-
 /**
-* @description hides the card's symbol and removes the cards from the open card list 
-*/
+ * @description hides the card's symbol and removes the cards from the open card list
+ */
 function removeFromOpenCards(){
     for(let i=0; i<openedCardsList.length; i++){
         openedCardsList[i].classList.remove("open");
+        openedCardsList[i].classList.remove("show");
         openedCardsList[i].classList.add("shake");
         openedCardsList[i].classList.add("notmatch");
     }
-    setTimeout(function(){
-        for(let i=0; i<openedCardsList.length; i++){
-            openedCardsList[i].classList.remove("notmatch");
-            openedCardsList[i].classList.remove("shake");
-            openedCardsList[i].classList.remove("show");
-        }
-        openedCardsList = [];
-    },500);
+    matchChecking = true;
+    unMatchedTimeOut = setTimeout(matchCheckAnimationStop,500);
 }
 
 /**
-* @description updates stars everytime match is found and checks if all cards are matched
-*/
+ * @description animates the card before removing from opencards
+ */
+function matchCheckAnimationStop(){
+    for(let i=0; i<openedCardsList.length; i++){
+        openedCardsList[i].classList.remove("shake");
+        openedCardsList[i].classList.remove("notmatch");
+    }
+    openedCardsList = [];
+    matchChecking = false;
+}
+
+/**
+ * @description lock the cards in the open position by adding match class
+ */
+function lockCardPosition(){
+    for(let i=0; i<openedCardsList.length; i++){
+        openedCardsList[i].classList.add("match");
+        openedCardsList[i].classList.add("shake");
+    }
+    matchChecking = true;
+    matchedTimeOut =  setTimeout(matchCheckAnimationStop,500);
+}
+
+/**
+ * @description updates stars everytime match is found and checks if all cards are matched
+ */
 function updateStars(){
     matchesCount++;
 
@@ -132,7 +153,7 @@ function updateStars(){
         messageBox.classList.add("container");
         messageBox.setAttribute("id", "message-container");
         messageBox.innerHTML = ' <div class="message-box"> '
-        +'<h3>Congratulation you won with ' + movesCount +' moves  and ' + starsCount +  ' starts!!!</h3>'
+        +'<h3>Congratulation you won with ' + movesCount +' moves  and ' + starsCount +  ' stars!!! In just '+ toHHMMSS(timerCount) +'</h3>'
         +'<button class="play-btn"onclick="startNewGame()">Play again</button>'
         +'</div>';
         gameContainer.style.display = "none";
@@ -141,25 +162,8 @@ function updateStars(){
 }
 
 /**
-* @description lock the cards in the open position by adding match class
-*/
-function lockCardPosition(){
-    for(let i=0; i<openedCardsList.length; i++){
-        openedCardsList[i].classList.add("match");
-        openedCardsList[i].classList.add("shake");
-    }
-    setTimeout(function(){
-        for(let i=0; i<openedCardsList.length; i++){
-            openedCardsList[i].classList.remove("shake");
-        }
-        updateStars();
-        openedCardsList = [];
-    },500);
-}
-
-/**
-* @description Updates the moves count and udpdates the stars
-*/
+ * @description Updates the moves count and udpdates the stars
+ */
 function updateCounters() {
     moves.innerHTML = movesCount;
     movesCount++;
@@ -174,8 +178,8 @@ function updateCounters() {
 }
 
 /**
-* @description Used as callback function on onclick on the cards
-*/
+ * @description Used as callback function on onclick on the cards
+ */
 function cardsOnClick(evt){
     let targetElm = evt.target;
 
@@ -184,8 +188,8 @@ function cardsOnClick(evt){
         targetElm = evt.target.parentElement;
     }
 
+    if(!matchChecking && (!targetElm.classList.contains("show") || !targetElm.classList.contains("open"))){
 
-    if(!targetElm.classList.contains("show") || !targetElm.classList.contains("open")){
         displayCardSymbol(targetElm);
 
         //add the card to a *list* of "open"
@@ -194,30 +198,27 @@ function cardsOnClick(evt){
         if(openedCardsList.length === 2){
             if(matchCardsToList()){
                 lockCardPosition();
+                updateStars();
             } else {
                 removeFromOpenCards();
             }
-
+            updateCounters();
         }
 
-        updateCounters();
-      
         if(!gamesHasStarted){
-          gamesHasStarted = true;
-          startTimer();
+            gamesHasStarted = true;
+            startTimer();
         }
-      
+
     }
 }
 
 /**
-* @description starts new game shuffling and redrawind the cards
-*/
+ * @description starts new game shuffling and redrawind the cards
+ */
 function startNewGame(){
     shuffleCards();
-    gamesHasStarted = false;
-    timerCount = 0;
-    timer.innerHTML = "00:00";
+    resetTimer();
     if(document.getElementById("message-container")){
         document.getElementById("message-container").remove();
         gameContainer.style.display = "flex";
@@ -227,8 +228,8 @@ function startNewGame(){
 }
 
 /**
-* @description draws the cards dynamically in the page
-*/
+ * @description draws the cards dynamically in the page
+ */
 function drawCards(){
     cardContainer.innerHTML="";
     for(let i=0; i<16 ; i++){
@@ -241,23 +242,37 @@ function drawCards(){
 }
 
 /**
-* @description starts the timer in seconds and displays it
-*/
+ * @description starts the timer in seconds and displays it
+ */
 function startTimer(){
-  setInterval(function(){
-    timerCount +=1;
-    timer.innerHTML = toHHMMSS(timerCount);
-  }, 1000);
+    timerIntervalId = setInterval(function(){
+        timerCount +=1;
+        timer.innerHTML = toHHMMSS(timerCount);
+    }, 1000);
 }
 
 /**
-* @description converts total number of seconds to hh:mm:ss format 
-*/
+ * @description reset the timer
+ */
+function resetTimer(){
+    gamesHasStarted = false;
+    timerCount = 0;
+    timer.innerHTML = "00:00";
+    if(timerIntervalId){
+        clearInterval(timerIntervalId);
+    }
+}
+
+
+
+/**
+ * @description converts total number of seconds to hh:mm:ss format
+ */
 function toHHMMSS(secs){
-    var sec_num = parseInt(secs, 10)    
+    var sec_num = parseInt(secs, 10)
     var hours   = Math.floor(sec_num / 3600) % 24
     var minutes = Math.floor(sec_num / 60) % 60
-    var seconds = sec_num % 60    
+    var seconds = sec_num % 60
     return [hours,minutes,seconds]
         .map(v => v < 10 ? "0" + v : v)
         .filter((v,i) => v !== "00" || i > 0)
@@ -266,7 +281,7 @@ function toHHMMSS(secs){
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    shuffleCards();
+   // shuffleCards();
     drawCards();
 });
 
